@@ -8,6 +8,7 @@ import rx.Subscriber;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.functions.FuncN;
 import rx.observables.ConnectableObservable;
 import rx.observables.MathObservable;
 import rx.subjects.AsyncSubject;
@@ -57,15 +58,52 @@ public class GeneralCodeSamples {
 
   @Test
   public void testCreateWithError() {
-    Observable.create(
+    Observable<Object> observable = Observable.create(
       subscriber -> {
         subscriber.onNext("Hello,");
         subscriber.onNext("World");
         subscriber.onError(new IOException("test exception"));
+        subscriber.onNext("Ignored after error");
         subscriber.onCompleted();
       }
-    )
-      .subscribe(System.out::println, System.out::println, () -> System.out.println("Complete"));
+    );
+
+    observable.subscribe(System.out::println, System.out::println, () -> System.out.println("Complete"));
+  }
+
+  @Test
+  public void testCreateWithErrorCorrection() {
+
+    Observable<String> observable = Observable.create(
+      subscriber -> {
+        subscriber.onNext("Hello,");
+        subscriber.onNext("World");
+        subscriber.onError(new IOException("test exception"));
+        subscriber.onNext("Ignored after error");
+//        subscriber.onError(new IOException("test exception"));
+        subscriber.onNext("Ignored after 2nd error");
+        subscriber.onCompleted();
+      }
+    );
+
+//    Observable<String> observable1 = observable
+//      .onErrorReturn(o -> "ERROR CORRECTED")
+//      .doOnError(System.out::println);
+
+    ConcurrentLinkedDeque<Observable<?>> sources = new ConcurrentLinkedDeque<>();
+    Observable<String>  observable1 = Observable.combineLatestDelayError(sources, args -> Arrays.asList(args).toString());
+    observable1.subscribe(System.out::println,
+      System.out::println, () -> System.out.println("Complete"));
+    System.out.println(sources);
+  }
+
+  @Test
+  public void testConvertObservableToInt() {
+    Integer sum = MathObservable.sumInteger(Observable.just(1, 2, 8, 9, 10, 11)).toBlocking().first();
+    System.out.println(sum);
+
+    List<String> list = Observable.just("it", "was", "the", "best", "of", "times").buffer(100).toBlocking().single();
+    System.out.println(list);
   }
 
   @Test
