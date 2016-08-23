@@ -6,16 +6,22 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PriceTick {
+  private final int sequence;
   private final Date date;
   private final String instrument;
   private final double price;
   private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("hh:mm:ss.SSS");
 
 
-  public PriceTick(Date date, String instrument, double price) {
+  public PriceTick(int sequence, Date date, String instrument, double price) {
+    this.sequence = sequence;
     this.date = date;
     this.instrument = instrument;
     this.price = price;
+  }
+
+  public int getSequence() {
+    return sequence;
   }
 
   public Date getDate() {
@@ -32,6 +38,6 @@ public class PriceTick {
 
   @Override
   public String toString() {
-    return String.format("%s %s %s", DATE_FORMAT.format(new Date()), instrument, price);
+    return String.format("%6d %s %s %s", sequence, DATE_FORMAT.format(new Date()), instrument, price);
   }
 }
