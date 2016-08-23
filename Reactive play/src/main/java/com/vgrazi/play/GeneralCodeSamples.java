@@ -4,10 +4,8 @@ import org.junit.Test;
 import rx.Completable;
 import rx.Observable;
 import rx.Single;
-import rx.Subscriber;
 import rx.functions.Action0;
 import rx.functions.Action1;
-import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.observables.MathObservable;
 import rx.subjects.AsyncSubject;
@@ -16,13 +14,13 @@ import rx.subjects.Subject;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.*;
 
 import static java.lang.Math.abs;
 
 public class GeneralCodeSamples {
-
   @Test
   public void testCreate() {
     Observable.create(s -> s.onNext("Hello, world"))
@@ -74,7 +72,7 @@ public class GeneralCodeSamples {
     Observable.create(s ->
       feed.register(new SomeListener() {
         @Override
-        public void priceTick(String event) {
+        public void priceTick(PriceTick event) {
           s.onNext(event);
         }
 
@@ -90,11 +88,11 @@ public class GeneralCodeSamples {
 
   @Test
   public void testAttachFeedWithMap() {
-    SomeFeed feed = new SomeFeed(3);
-    Observable.create(s ->
+    SomeFeed feed = new SomeFeed(5);
+    Observable<PriceTick> observable = Observable.create(s ->
       feed.register(new SomeListener() {
         @Override
-        public void priceTick(String event) {
+        public void priceTick(PriceTick event) {
           s.onNext(event);
         }
 
@@ -103,8 +101,15 @@ public class GeneralCodeSamples {
           s.onError(throwable);
         }
       })
-    )
-      .subscribe(System.out::println);
+    );
+
+    Observable<Date> dates = observable.map(PriceTick::getDate);
+    Observable<String> instruments = observable.map(priceTick->String.format("%4s", priceTick.getInstrument()));
+    Observable<String> prices = observable.map(tick -> String.format("%6.2f", tick.getPrice()));
+
+    Observable<String> zipped = Observable.zip(dates, instruments, prices,
+      (date, instrument, price) -> date + " : " + instrument + " :: " + price);
+    zipped.subscribe(System.out::println);
 
     sleep(500_000);
   }

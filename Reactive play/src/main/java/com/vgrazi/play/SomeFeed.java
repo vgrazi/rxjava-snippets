@@ -52,7 +52,6 @@ public class SomeFeed {
     {
       int counter = 0;
       final Object MUTEX = new Object();
-      SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss.SSS");
       double price = startingPrice;
       while (running) {
         try {
@@ -63,9 +62,8 @@ public class SomeFeed {
 
           double finalPrice = price;
           listeners.forEach(subscriber -> {
-            String message = String.format("%s %s %s", format.format(new Date()), instrument, finalPrice);
-//            System.out.println("Notifying " + message);
-            subscriber.priceTick(message);
+            PriceTick priceTick = new PriceTick(new Date(), instrument, finalPrice);
+            subscriber.priceTick(priceTick);
           });
           synchronized (MUTEX) {
             MUTEX.wait(RANDOM.nextInt(500) + 500);
