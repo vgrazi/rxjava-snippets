@@ -1,5 +1,7 @@
 package com.vgrazi.play;
 
+import com.vgrazi.util.Logger;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
@@ -11,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class SomeFeed {
+public class SomeFeed<T> {
   private final boolean barriered;
   private AtomicInteger threadcounter = new AtomicInteger(1);
 
@@ -29,8 +31,10 @@ public class SomeFeed {
   private final Random RANDOM = new Random(0);
   private static final Random RANDOM_PRICE = new Random(0);
 
+  private static final String[] instruments = {"IBM", "NMR", "BAC", "AAPL", "MSFT"};
+
   public SomeFeed() {
-    this(1);
+    this(instruments.length);
   }
 
   public SomeFeed(int threadCount) {
@@ -47,10 +51,10 @@ public class SomeFeed {
   }
 
 
+  AtomicInteger sequence = new AtomicInteger(1);
   private void launchEventThread(String instrument, double startingPrice) {
     service.execute(() ->
     {
-      int counter = 0;
       final Object MUTEX = new Object();
       SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss.SSS");
       double price = startingPrice;
@@ -63,12 +67,13 @@ public class SomeFeed {
 
           double finalPrice = price;
           listeners.forEach(subscriber -> {
+            PriceTick tick = new PriceTick(sequence.getAndIncrement(), new Date(), instrument, finalPrice);
             String message = String.format("%s %s %s", format.format(new Date()), instrument, finalPrice);
-//            System.out.println("Notifying " + message);
-            subscriber.priceTick(message);
+//            Logger.print("Notifying " + message);
+            subscriber.priceTick(tick);
           });
           synchronized (MUTEX) {
-            MUTEX.wait(RANDOM.nextInt(500) + 500);
+            MUTEX.wait(RANDOM.nextInt(200) + 800);
           }
         } catch (InterruptedException | BrokenBarrierException e) {
           e.printStackTrace();
@@ -77,15 +82,16 @@ public class SomeFeed {
     });
   }
 
-  String[] instruments = {"IBM", "NMR", "BAC", "AAPL", "MSFT"};
   double[] prices = {160, 5, 15,  108, 57};
   void launchPublishers() {
+    Logger.print("Launching publishers");
     for (int i = 0; i < threadCount; i++) {
       launchEventThread(instruments[i%instruments.length], prices[i%prices.length]);
     }
   }
 
   void register(SomeListener listener) {
+    Logger.print("Registering subscriber " + listener);
     listeners.add(listener);
   }
 

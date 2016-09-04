@@ -10,7 +10,7 @@ public class PriceTick {
   private final Date date;
   private final String instrument;
   private final double price;
-  private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("hh:mm:ss.SSS");
+  private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("hh:mm:ss");
 
 
   public PriceTick(int sequence, Date date, String instrument, double price) {
@@ -40,4 +40,9 @@ public class PriceTick {
   public String toString() {
     return String.format("%6d %s %s %s", sequence, DATE_FORMAT.format(new Date()), instrument, price);
   }
+
+  public boolean isLast() {
+    return sequence >= 10;
+  }
+
 }

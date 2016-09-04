@@ -1,26 +1,22 @@
 package com.vgrazi.play;
 
+import com.vgrazi.util.Logger;
 import org.junit.Test;
-import rx.Completable;
+import rx.*;
 import rx.Observable;
-import rx.Single;
-import rx.Subscriber;
 import rx.functions.Action0;
 import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.functions.FuncN;
 import rx.observables.ConnectableObservable;
 import rx.observables.MathObservable;
+import rx.schedulers.Schedulers;
 import rx.subjects.AsyncSubject;
 import rx.subjects.Subject;
-//import rx.math.operators.OperatorMinMax;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 
-import static java.lang.Math.abs;
+import static com.vgrazi.util.Logger.print;
 
 public class GeneralCodeSamples {
 
@@ -91,10 +87,17 @@ public class GeneralCodeSamples {
 //      .doOnError(System.out::println);
 
     ConcurrentLinkedDeque<Observable<?>> sources = new ConcurrentLinkedDeque<>();
-    Observable<String>  observable1 = Observable.combineLatestDelayError(sources, args -> Arrays.asList(args).toString());
+    Observable<String> observable1 = Observable.combineLatestDelayError(sources, args -> Arrays.asList(args).toString());
     observable1.subscribe(System.out::println,
       System.out::println, () -> System.out.println("Complete"));
     System.out.println(sources);
+    Scheduler scheduler = Schedulers.immediate();
+//    Scheduler scheduler = Schedulers.computation();
+//    Scheduler scheduler = Schedulers.from(Executor);
+//    Scheduler scheduler = Schedulers.io();
+//    Scheduler scheduler = Schedulers.newThread();
+//    Scheduler scheduler = Schedulers.trampoline();
+    observable.subscribeOn(scheduler);
   }
 
   @Test
@@ -107,12 +110,76 @@ public class GeneralCodeSamples {
   }
 
   @Test
+  public void testRangeZip() {
+    Observable<Integer> counters = Observable
+      .range(1, Integer.MAX_VALUE)
+//      .doOnNext(x-> System.out.println("On Next:" + x))
+      ;
+    List<String> list = Arrays.asList(
+      "the",
+      "quick",
+      "brown",
+      "fox",
+      "jumped",
+      "over",
+      "the",
+      "lazy",
+      "dog"
+    );
+    Observable
+      .from(list)
+      .flatMap(x-> Observable.from(x.split("")))
+      .distinct()
+      .sorted()
+      .zipWith(counters, (x, y)->String.format("%2d. %s", y, x))
+      .subscribe(System.out::println);
+  }
+
+
+  @Test
+  public void testFromAsync() {
+    SomeFeed feed = new SomeFeed();
+
+    Observable<PriceTick> observable = Observable.fromAsync((AsyncEmitter<PriceTick> emitter) -> {
+      SomeListener listener = new SomeListener() {
+        @Override
+        public void priceTick(PriceTick event) {
+//          emitter.onNext(throwException());
+          emitter.onNext(event);
+          if (event.isLast()) {
+            emitter.onCompleted();
+          }
+        }
+
+        @Override
+        public void error(Throwable e) {
+          emitter.onError(e);
+        }
+      };
+
+
+      feed.register(listener);
+
+    }, AsyncEmitter.BackpressureMode.BUFFER).doOnNext((x) -> print("doOnNext:" + x));
+//    ConnectableObservable<PriceTick> connectableObservable = observable.publish();
+//    connectableObservable.connect();
+    sleep(3_000);
+
+//    Subscription subscription = observable.subscribe(Logger::print);
+    Subscription subscription = observable.subscribe(Logger::print, Logger::print, ()-> System.out.println("Complete"));
+    sleep(3_000);
+    subscription.unsubscribe();
+
+  }
+
+
+  @Test
   public void testAttachFeed() {
     SomeFeed feed = new SomeFeed(3);
     Observable.create(s ->
       feed.register(new SomeListener() {
         @Override
-        public void priceTick(String event) {
+        public void priceTick(PriceTick event) {
           s.onNext(event);
         }
 
@@ -126,26 +193,26 @@ public class GeneralCodeSamples {
     sleep(500_000);
   }
 
-  @Test
-  public void testAttachFeedWithMap() {
-    SomeFeed feed = new SomeFeed(3);
-    Observable.create(s ->
-      feed.register(new SomeListener() {
-        @Override
-        public void priceTick(String event) {
-          s.onNext(event);
-        }
-
-        @Override
-        public void error(Throwable throwable) {
-          s.onError(throwable);
-        }
-      })
-    )
-      .subscribe(System.out::println);
-
-    sleep(500_000);
-  }
+//  @Test
+//  public void testAttachFeedWithMap() {
+//    SomeFeed feed = new SomeFeed(3);
+//    Observable.create(s ->
+//      feed.register(new SomeListener() {
+//        @Override
+//        public void priceTick(String event) {
+//          s.onNext(event);
+//        }
+//
+//        @Override
+//        public void error(Throwable throwable) {
+//          s.onError(throwable);
+//        }
+//      })
+//    )
+//      .subscribe(System.out::println);
+//
+//    sleep(500_000);
+//  }
 
 
   @Test
@@ -230,7 +297,6 @@ public class GeneralCodeSamples {
 
     Observable<Double> sum = MathObservable.from(observable)
       .sumDouble(s -> s * 1d);
-    ;
 
     Observable<Double> max = MathObservable.from(observable)
       .max(Integer::compareTo)
@@ -359,7 +425,10 @@ public class GeneralCodeSamples {
     getThread(executor, subject);
     getThread(executor, subject);
 
-    subject.subscribe(v -> System.out.println(v + ":" + Thread.currentThread()), System.out::println, System.out::println);
+    subject.subscribe(
+      v -> System.out.println(v),             // happy path
+      System.out::println,                    // error handler
+      () -> System.out.println("Complete"));  // complete
 
     Thread.sleep(12_000);
   }
