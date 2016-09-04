@@ -33,17 +33,39 @@ public class Examples {
             emitter.onNext(event);
             if (event.isLast()) {
               emitter.onCompleted();
-            }}
+            }
+          }
 
           @Override
-          public void error(Throwable e){ emitter.onError(e); }
+          public void error(Throwable e) {
+            emitter.onError(e);
+          }
         };
 
         feed.register(listener);
       }, AsyncEmitter.BackpressureMode.BUFFER);
 
 
+    observable.subscribe(x -> System.out.printf("%2d %s %4s %6.2f%n", x.getSequence(), x.getDate(), x.getInstrument(), x.getPrice()), System.out::println, () -> System.out.println("Complete"));
+    Observable<Integer> range = Observable.range(1, Integer.MAX_VALUE);
+    Observable<String> words = Observable.just(
+      "the",
+      "quick",
+      "brown",
+      "fox",
+      "jumped",
+      "over",
+      "the",
+      "lazy",
+      "dog"
+    );
+    words.
+      flatMap(w -> Observable.from(w.split("")))
+      .distinct()
+      .sorted()
+      .zipWith(range, (w, i) -> String.format("%2d. %s", i, w))
+      .subscribe(System.out::println);
 
-      observable.subscribe(x-> System.out.printf("%2d %s %4s %6.2f%n", x.getSequence(), x.getDate(), x.getInstrument(), x.getPrice()), System.out::println, ()-> System.out.println("Complete"));
+
   }
 }
