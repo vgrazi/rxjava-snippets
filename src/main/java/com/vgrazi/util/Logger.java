@@ -9,4 +9,12 @@ public class Logger {
   public static void print(Object s) {
     System.out.printf("%s:%s%n", new Date(), s);
   }
+
+  public static void sleep(long time) {
+    try {
+      Thread.sleep(time);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
 }
