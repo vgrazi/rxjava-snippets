@@ -13,6 +13,7 @@ import rx.subjects.Subject;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
@@ -20,6 +21,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static com.vgrazi.util.Logger.print;
+import static com.vgrazi.util.Logger.sleep;
 
 public class Examples {
   public static void main(String[] args) {
@@ -63,9 +65,24 @@ public class Examples {
       flatMap(w -> Observable.from(w.split("")))
       .distinct()
       .sorted()
-      .zipWith(range, (w, i) -> String.format("%2d. %s", i, w))
+      .zipWith(Observable.range(1, Integer.MAX_VALUE), (letter, counter) -> String.format("%2d. %s", counter, letter))
       .subscribe(System.out::println);
 
+    Observable<Long> weekday = Observable.interval(5, TimeUnit.SECONDS)
+      .filter(x -> isWeekend());
 
+    Observable<Long> weekend = Observable.interval(2, TimeUnit.SECONDS)
+      .filter(x -> !isWeekend());
+
+    Observable.merge(weekend, weekday)
+      .subscribe(x -> System.out.println(new Date()));
+
+    sleep(100_000);
+  }
+
+
+  private static boolean isWeekend() {
+    Date now = new Date();
+    return now.getSeconds() > 30;
   }
 }
