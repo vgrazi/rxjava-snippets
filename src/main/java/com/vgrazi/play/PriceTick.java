@@ -42,7 +42,8 @@ public class PriceTick {
   }
 
   public boolean isLast() {
-    return sequence >= 10;
+    return false;
+//    return sequence >= 10;
   }
 
 }

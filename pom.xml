@@ -32,9 +32,9 @@
             <version>RELEASE</version>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>com.netflix.rxjava</groupId>-->
-            <!--<artifactId>rxjava-math</artifactId>-->
-            <!--<version>0.20.7</version>-->
+        <!--<groupId>com.netflix.rxjava</groupId>-->
+        <!--<artifactId>rxjava-math</artifactId>-->
+        <!--<version>0.20.7</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>junit</groupId>

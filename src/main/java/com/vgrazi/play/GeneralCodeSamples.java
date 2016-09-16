@@ -140,35 +140,35 @@ public class GeneralCodeSamples {
   public void testFromAsync() {
     SomeFeed feed = new SomeFeed();
 
-    Observable<PriceTick> observable = Observable.fromAsync((AsyncEmitter<PriceTick> emitter) -> {
-      SomeListener listener = new SomeListener() {
-        @Override
-        public void priceTick(PriceTick event) {
-//          emitter.onNext(throwException());
-          emitter.onNext(event);
-          if (event.isLast()) {
-            emitter.onCompleted();
-          }
-        }
-
-        @Override
-        public void error(Throwable e) {
-          emitter.onError(e);
-        }
-      };
-
-
-      feed.register(listener);
-
-    }, AsyncEmitter.BackpressureMode.BUFFER).doOnNext((x) -> print("doOnNext:" + x));
-//    ConnectableObservable<PriceTick> connectableObservable = observable.publish();
-//    connectableObservable.connect();
-    sleep(3_000);
-
-//    Subscription subscription = observable.subscribe(Logger::print);
-    Subscription subscription = observable.subscribe(Logger::print, Logger::print, ()-> System.out.println("Complete"));
-    sleep(3_000);
-    subscription.unsubscribe();
+//    Observable<PriceTick> observable = Observable.fromAsync((AsyncEmitter<PriceTick> emitter) -> {
+//      SomeListener listener = new SomeListener() {
+//        @Override
+//        public void priceTick(PriceTick event) {
+////          emitter.onNext(throwException());
+//          emitter.onNext(event);
+//          if (event.isLast()) {
+//            emitter.onCompleted();
+//          }
+//        }
+//
+//        @Override
+//        public void error(Throwable e) {
+//          emitter.onError(e);
+//        }
+//      };
+//
+//
+//      feed.register(listener);
+//
+//    }, AsyncEmitter.BackpressureMode.BUFFER).doOnNext((x) -> print("doOnNext:" + x));
+////    ConnectableObservable<PriceTick> connectableObservable = observable.publish();
+////    connectableObservable.connect();
+//    sleep(3_000);
+//
+////    Subscription subscription = observable.subscribe(Logger::print);
+//    Subscription subscription = observable.subscribe(Logger::print, Logger::print, ()-> System.out.println("Complete"));
+//    sleep(3_000);
+//    subscription.unsubscribe();
 
   }
 
@@ -575,7 +575,7 @@ public class GeneralCodeSamples {
     Observable<Integer> fibonacci = Observable.create(
       observer -> {
         int f1 = 0, f2 = 1, f = 1;
-        while (true) {
+        while (!observer.isUnsubscribed()) {
           observer.onNext(f);
           System.out.println(f);
           f = f1 + f2;
@@ -607,6 +607,17 @@ public class GeneralCodeSamples {
         return second[0];
       })
       .subscribe(System.out::println);
+  }
+
+  @Test
+  public void testMergeIdentical()
+  {
+    ConnectableObservable<Long> hot = Observable.interval(1, TimeUnit.SECONDS).publish();
+    hot.connect();
+    hot.mergeWith(hot).subscribe((x) -> System.out.println(System.nanoTime() + " " + x));
+
+    sleep(50_000);
+
   }
 
 
@@ -648,7 +659,7 @@ public class GeneralCodeSamples {
 
   @Test
   public void testCompletable() {
-    Completable.create(s -> System.out.println(s));
+    Completable.create((Completable.CompletableOnSubscribe) s -> System.out.println(s));
   }
 
   private static void sleep(long value) {

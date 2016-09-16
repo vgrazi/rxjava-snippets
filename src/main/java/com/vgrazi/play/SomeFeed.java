@@ -90,7 +90,7 @@ public class SomeFeed<T> {
     }
   }
 
-  void register(SomeListener listener) {
+  public void register(SomeListener listener) {
     Logger.print("Registering subscriber " + listener);
     listeners.add(listener);
   }
