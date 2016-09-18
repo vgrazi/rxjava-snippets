@@ -1,6 +1,5 @@
 package com.vgrazi.play;
 
-import com.vgrazi.util.Logger;
 import org.junit.Test;
 import rx.*;
 import rx.Observable;
@@ -15,8 +14,6 @@ import rx.subjects.Subject;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
-
-import static com.vgrazi.util.Logger.print;
 
 public class GeneralCodeSamples {
 

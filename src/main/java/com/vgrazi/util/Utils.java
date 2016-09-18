@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * Created by vgrazi on 9/2/16.
  */
-public class Logger {
+public class Utils {
   public static void print(Object s) {
     System.out.printf("%s:%s%n", new Date(), s);
   }
@@ -21,21 +21,20 @@ public class Logger {
     }
   }
 
-  private static long start = System.currentTimeMillis() / 1000 % 60;
+  private static long start = System.currentTimeMillis();
 
-  public static Boolean isSlowTime()
-    {
-      boolean b = (Calendar.getInstance().get(Calendar.SECOND) - start) % 20 >= 10;
+  public static Boolean isSlowTime() {
+    boolean b = (System.currentTimeMillis() - start) % 30_000 >= 15_000;
 //      System.out.println(new Date() + String.format("is %sslow time", b?"":"NOT "));
-      return b;
+    return b;
+  }
+
+  @Test
+  public void test() {
+    while (true) {
+      System.out.println(String.format(new Date() + " is %sslow time ", isSlowTime() ? "" : "NOT "));
+      sleep(1_00);
     }
-    @Test
-    public void test()
-    {
-      while(true) {
-        System.out.println(String.format(new Date() + " is %sslow time ", isSlowTime()?"":"NOT "));
-        sleep(1_00);
-      }
-    }
+  }
 
 }

@@ -5,8 +5,8 @@ import rx.Observable;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import static com.vgrazi.util.Logger.isSlowTime;
-import static com.vgrazi.util.Logger.sleep;
+import static com.vgrazi.util.Utils.isSlowTime;
+import static com.vgrazi.util.Utils.sleep;
 
 public class MetronomeLauncher
 {

@@ -1,16 +1,12 @@
 package com.vgrazi.observable;
 
-import com.vgrazi.util.Logger;
 import rx.Observable;
-import rx.schedulers.Timestamped;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.vgrazi.util.Logger.isSlowTime;
-import static com.vgrazi.util.Logger.sleep;
+import static com.vgrazi.util.Utils.isSlowTime;
+import static com.vgrazi.util.Utils.sleep;
 
 public class Launcher
 {

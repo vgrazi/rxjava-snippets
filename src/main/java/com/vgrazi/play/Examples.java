@@ -1,27 +1,6 @@
 package com.vgrazi.play;
 
-import com.vgrazi.util.Logger;
-import org.junit.Test;
-import rx.*;
-import rx.functions.Action0;
-import rx.functions.Action1;
-import rx.observables.ConnectableObservable;
-import rx.observables.MathObservable;
-import rx.schedulers.Schedulers;
-import rx.subjects.AsyncSubject;
-import rx.subjects.Subject;
-
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import static com.vgrazi.util.Logger.print;
-import static com.vgrazi.util.Logger.sleep;
 
 public class Examples {
   public static void main(String[] args) {

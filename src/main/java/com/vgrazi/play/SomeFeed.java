@@ -1,6 +1,6 @@
 package com.vgrazi.play;
 
-import com.vgrazi.util.Logger;
+import com.vgrazi.util.Utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -84,14 +84,14 @@ public class SomeFeed<T> {
 
   double[] prices = {160, 5, 15,  108, 57};
   void launchPublishers() {
-    Logger.print("Launching publishers");
+    Utils.print("Launching publishers");
     for (int i = 0; i < threadCount; i++) {
       launchEventThread(instruments[i%instruments.length], prices[i%prices.length]);
     }
   }
 
   public void register(SomeListener listener) {
-    Logger.print("Registering subscriber " + listener);
+    Utils.print("Registering subscriber " + listener);
     listeners.add(listener);
   }
 
