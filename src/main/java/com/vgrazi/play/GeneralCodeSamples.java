@@ -1,8 +1,19 @@
 package com.vgrazi.play;
 
 import org.junit.Test;
-import rx.*;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import rx.Completable;
 import rx.Observable;
+import rx.Scheduler;
+import rx.Single;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.observables.ConnectableObservable;
@@ -10,10 +21,6 @@ import rx.observables.MathObservable;
 import rx.schedulers.Schedulers;
 import rx.subjects.AsyncSubject;
 import rx.subjects.Subject;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.*;
 
 public class GeneralCodeSamples {
 
@@ -656,7 +663,7 @@ public class GeneralCodeSamples {
 
   @Test
   public void testCompletable() {
-    Completable.create((Completable.CompletableOnSubscribe) s -> System.out.println(s));
+    Completable.create(s -> System.out.println(s));
   }
 
   private static void sleep(long value) {
