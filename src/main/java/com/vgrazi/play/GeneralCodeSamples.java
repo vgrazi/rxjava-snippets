@@ -656,7 +656,7 @@ public class GeneralCodeSamples {
 
   @Test
   public void testCompletable() {
-    Completable.create((Completable.CompletableOnSubscribe) s -> System.out.println(s));
+    Completable.create(s -> System.out.println(s));
   }
 
   private static void sleep(long value) {
