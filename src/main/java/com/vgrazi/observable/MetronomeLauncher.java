@@ -1,6 +1,7 @@
 package com.vgrazi.observable;
 
-import rx.Observable;
+
+import io.reactivex.Observable;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;

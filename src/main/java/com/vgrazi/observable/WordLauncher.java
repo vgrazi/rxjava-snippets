@@ -1,20 +1,14 @@
 package com.vgrazi.observable;
 
-import rx.Observable;
+import io.reactivex.Observable;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class WordLauncher
-{
-
-    public static void main(String[] args)
-    {
-        new WordLauncher().launch();
-    }
-
-    private void launch()
-    {
+public class WordLauncher {
+    @Test
+    public void testWords() {
         List<String> words = Arrays.asList(
                 "the",
                 "quick",
@@ -27,12 +21,12 @@ public class WordLauncher
                 "dogs"
         );
 
-        Observable.from(words)
-                .flatMap(word -> Observable.from(word.split("")))
+        Observable.fromIterable(words)
+                .flatMap(word -> Observable.fromArray(word.split("")))
                 .distinct()
                 .sorted()
                 .zipWith(Observable.range(1, Integer.MAX_VALUE),
-                        (string, count)->String.format("%2d. %s", count, string))
-                .subscribe(System.out:: println);
+                        (string, count) -> String.format("%2d. %s", count, string))
+                .subscribe(System.out::println);
     }
 }
